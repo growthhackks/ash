@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Goa Gig Finder: An Interactive Guide for AshikaMoves</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Desert Rose -->
+    <!-- Application Structure Plan: A task-oriented, single-page dashboard. The structure begins with a motivational Hero section featuring Ashika's brand. It's followed by a visual 'Strategy' section to simplify the core plan. The main interactive element is the 'Opportunity Explorer,' a filterable database of clubs and agencies, designed for active lead generation. This is supported by a 'Pitch Kit' for practical communication guidance and 'Market Insights' with a visual chart for strategic timing. This structure was chosen to transform the report from a passive document into an active tool, prioritizing actionable steps (finding leads, crafting pitches) over the report's linear format, thus enhancing usability for the artist. -->
+    <!-- Visualization & Content Choices: 1. Report Info: Club/Agency lists -> Goal: Organize/Action -> Viz: Interactive Card List -> Interaction: Filter by suitability/location, search, tabs for clubs/agencies -> Justification: Far more usable than a static table, especially on mobile. Supports the primary user task of finding and qualifying leads. -> Library: Vanilla JS + Tailwind. 2. Report Info: Seasonal Demand -> Goal: Visualize Change -> Viz: Bar Chart -> Interaction: Hover tooltips -> Justification: A chart provides an instant, memorable understanding of market timing. -> Library: Chart.js. 3. Report Info: Core Strategy (Direct vs. Agency) -> Goal: Inform/Organize -> Viz: HTML/CSS Diagram -> Interaction: Static Visual Flow -> Justification: Simplifies the complex strategy into an easily digestible visual model. -> Library: Tailwind CSS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #FDF8F5;
+            color: #4A4A4A;
+        }
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+        }
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #E57373;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after, .nav-link.active::after {
+            width: 100%;
+        }
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 300px;
+            max-height: 400px;
+            width: 100%;
+            max-width: 600px;
+        }
+        .card-enter {
+            animation: card-enter 0.5s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        @keyframes card-enter {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-[#FDF8F5]">
+
+    <!-- Header & Navigation -->
+    <header id="header" class="bg-[#FDF8F5]/80 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold text-[#D35454]">AshikaMoves</a>
+            <div class="hidden md:flex space-x-8">
+                <a href="#strategy" class="nav-link text-gray-700 hover:text-[#E57373]">Strategy</a>
+                <a href="#explorer" class="nav-link text-gray-700 hover:text-[#E57373]">Opportunity Explorer</a>
+                <a href="#pitch-kit" class="nav-link text-gray-700 hover:text-[#E57373]">Pitch Kit</a>
+                <a href="#insights" class="nav-link text-gray-700 hover:text-[#E57373]">Market Insights</a>
+            </div>
+            <button id="mobile-menu-button" class="md:hidden text-gray-700 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pb-4">
+            <a href="#strategy" class="block py-2 text-gray-700 hover:text-[#E57373]">Strategy</a>
+            <a href="#explorer" class="block py-2 text-gray-700 hover:text-[#E57373]">Opportunity Explorer</a>
+            <a href="#pitch-kit" class="block py-2 text-gray-700 hover:text-[#E57373]">Pitch Kit</a>
+            <a href="#insights" class="block py-2 text-gray-700 hover:text-[#E57373]">Market Insights</a>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="home" class="container mx-auto px-6 py-16 md:py-24 flex flex-col md:flex-row items-center">
+            <div class="md:w-1/2 text-center md:text-left mb-10 md:mb-0">
+                <h1 class="text-4xl md:text-6xl font-bold text-[#4A4A4A] leading-tight mb-4">Secure Your Stage in Goa</h1>
+                <p class="text-lg text-gray-600 mb-2">A strategic guide for <span class="font-semibold text-[#D35454]">AshikaMoves</span>.</p>
+                <p class="text-lg text-gray-600 mb-6">Leverage your unique blend of Belly Dance and Western Dance to captivate Goa's vibrant nightlife.</p>
+                <a href="#explorer" class="bg-[#E57373] text-white font-bold py-3 px-8 rounded-full hover:bg-[#D35454] transition duration-300 shadow-lg">Explore Opportunities</a>
+            </div>
+            <div class="md:w-1/2 flex justify-center">
+                <div class="w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden shadow-2xl border-4 border-white">
+                    <img src="WhatsApp Image 2025-06-20 at 15.54.40.jpeg" alt="AshikaMoves profile picture" class="w-full h-full object-cover" onerror="this.onerror=null;this.src='https://placehold.co/320x320/FDF8F5/D35454?text=Ashika';">
+                </div>
+            </div>
+        </section>
+
+        <!-- Strategy Section -->
+        <section id="strategy" class="bg-white py-20">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold text-[#4A4A4A] mb-4">Your Dual-Pronged Strategy</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto mb-12">To maximize your chances, we'll pursue two paths simultaneously. This approach combines direct, personalized outreach with the broad network access of professional agencies.</p>
+                <div class="flex flex-col md:flex-row justify-center items-center md:items-start space-y-8 md:space-y-0 md:space-x-8">
+                    <!-- Path 1 -->
+                    <div class="w-full md:w-1/3 p-6 bg-[#FDF8F5] rounded-xl shadow-md">
+                        <div class="text-5xl mb-4">🎯</div>
+                        <h3 class="text-2xl font-bold text-[#4A4A4A] mb-2">Direct Club Outreach</h3>
+                        <p class="text-gray-600">Personally connect with high-potential venues. This allows for a tailored pitch that highlights how your unique skills can enhance their specific events and atmosphere.</p>
+                    </div>
+                    <div class="text-4xl text-[#E57373] self-center transform md:rotate-0 rotate-90">&rarr;</div>
+                     <!-- Central Goal -->
+                    <div class="w-full md:w-1/4 p-6 flex flex-col justify-center items-center">
+                        <div class="text-6xl mb-4">🌟</div>
+                        <h3 class="text-2xl font-bold text-white bg-[#D35454] px-4 py-2 rounded-lg">Goa Gig Secured</h3>
+                    </div>
+                    <div class="text-4xl text-[#E57373] self-center transform md:rotate-0 rotate-90">&larr;</div>
+                    <!-- Path 2 -->
+                    <div class="w-full md:w-1/3 p-6 bg-[#FDF8F5] rounded-xl shadow-md">
+                        <div class="text-5xl mb-4">🤝</div>
+                        <h3 class="text-2xl font-bold text-[#4A4A4A] mb-2">Agency Partnership</h3>
+                        <p class="text-gray-600">Engage with local talent and event managers. They provide industry credibility, handle negotiations, and unlock access to a wider network of exclusive opportunities.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Opportunity Explorer -->
+        <section id="explorer" class="py-20">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl md:text-4xl font-bold text-[#4A4A4A] text-center mb-4">Opportunity Explorer</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto text-center mb-12">This is your interactive database of potential leads in Goa. Use the filters to narrow your search and find the perfect venues and agencies to contact.</p>
+
+                <!-- Controls -->
+                <div class="bg-white p-4 rounded-xl shadow-md mb-8 sticky top-[88px] z-40">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Tabs -->
+                        <div class="col-span-1 md:col-span-1">
+                            <div class="flex bg-gray-200 rounded-lg p-1">
+                                <button id="tab-clubs" class="tab-btn active flex-1 py-2 px-4 rounded-md text-sm font-semibold transition">Clubs</button>
+                                <button id="tab-agencies" class="tab-btn flex-1 py-2 px-4 rounded-md text-sm font-semibold transition">Agencies</button>
+                            </div>
+                        </div>
+                        <!-- Search & Filters -->
+                        <div class="col-span-1 md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <input id="search-input" type="text" placeholder="Search by name..." class="sm:col-span-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E57373]">
+                            <select id="filter-suitability" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E57373]">
+                                <option value="all">All Suitability</option>
+                                <option value="High">High</option>
+                                <option value="Moderate">Moderate</option>
+                                <option value="Limited/Seasonal">Limited/Seasonal</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cards Grid -->
+                <div id="cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Cards will be injected here by JavaScript -->
+                </div>
+            </div>
+        </section>
+        
+        <!-- Pitch Kit Section -->
+        <section id="pitch-kit" class="bg-white py-20">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl md:text-4xl font-bold text-[#4A4A4A] text-center mb-4">Your Irresistible Pitch Kit</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto text-center mb-12">A great performance starts with a great pitch. Use these key elements to craft a proposal that venues and agencies can't ignore.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Card 1: Your Strengths -->
+                    <div class="bg-[#FDF8F5] p-6 rounded-xl shadow-md">
+                        <div class="text-4xl mb-4">💪</div>
+                        <h3 class="text-xl font-bold text-[#4A4A4A] mb-2">Highlight Your Strengths</h3>
+                        <ul class="list-disc list-inside text-gray-600 space-y-2">
+                            <li><span class="font-semibold">Dual Expertise:</span> Emphasize your unique skill in both Belly Dance and Western Dance.</li>
+                            <li><span class="font-semibold">Versatility:</span> Showcase your ability to adapt to different themes, from high-energy parties to culturally rich shows.</li>
+                            <li><span class="font-semibold">Technical Skill:</span> Mention specific techniques like undulations, shimmies, and fluid core movements.</li>
+                        </ul>
+                    </div>
+                    <!-- Card 2: Instagram Portfolio -->
+                    <div class="bg-[#FDF8F5] p-6 rounded-xl shadow-md">
+                        <div class="text-4xl mb-4">📸</div>
+                        <h3 class="text-xl font-bold text-[#4A4A4A] mb-2">Optimize Your Portfolio</h3>
+                        <p class="text-gray-600 mb-4">Your Instagram (`@ashikamoves`) is your digital stage. Make it count.</p>
+                        <ul class="list-disc list-inside text-gray-600 space-y-2">
+                            <li><span class="font-semibold">High-Quality Videos:</span> Post professional, short clips showcasing your range.</li>
+                            <li><span class="font-semibold">Clear Bio:</span> State your dance styles, availability for gigs in Goa, and professional contact info.</li>
+                             <li><span class="font-semibold">Show Engagement:</span> Demonstrate your ability to connect with an audience.</li>
+                        </ul>
+                    </div>
+                    <!-- Card 3: Tailor the Pitch -->
+                    <div class="bg-[#FDF8F5] p-6 rounded-xl shadow-md">
+                        <div class="text-4xl mb-4">✍️</div>
+                        <h3 class="text-xl font-bold text-[#4A4A4A] mb-2">Tailor Every Pitch</h3>
+                        <p class="text-gray-600">One size does not fit all. Research each venue and customize your approach.</p>
+                        <ul class="list-disc list-inside text-gray-600 space-y-2">
+                           <li><span class="font-semibold">For Bollywood Nights:</span> Pitch a vibrant belly dance or a Bollywood-fusion piece.</li>
+                            <li><span class="font-semibold">For High-Energy Clubs:</span> Propose dynamic, modern Western dance sets.</li>
+                            <li><span class="font-semibold">For Live Music Venues:</span> Suggest a performance that complements their bands (e.g., retro, jazz).</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Market Insights -->
+        <section id="insights" class="py-20">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl md:text-4xl font-bold text-[#4A4A4A] text-center mb-4">Goa Market Insights</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto text-center mb-12">Timing is everything. Understand Goa's seasonal demand to focus your outreach when opportunities are most abundant.</p>
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                     <h3 class="text-xl font-bold text-[#4A4A4A] text-center mb-6">Annual Performance Seasonality</h3>
+                     <div class="chart-container">
+                        <canvas id="seasonalityChart"></canvas>
+                    </div>
+                </div>
+                 <div class="mt-12 text-center">
+                    <h3 class="text-2xl font-bold text-[#4A4A4A] mb-4">Long-Term Growth</h3>
+                    <p class="text-gray-600 max-w-2xl mx-auto">Sustained success comes from networking and reputation. Attend local events, connect with industry professionals, and consistently deliver high-quality performances to build your brand.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-white mt-20">
+        <div class="container mx-auto px-6 py-8 text-center text-gray-600">
+            <p>&copy; 2025 AshikaMoves Strategic Guide. All rights reserved.</p>
+            <p class="text-sm mt-2">This interactive application was designed to empower your performance career in Goa.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Data
+            const clubsData = [
+                { name: 'Hammerzz Goa', location: 'North Goa (Baga)', suitability: 'High', vibe: 'EDM, Techno, House, Hip Hop, Lively', contact: 'Phone: +917774000007, Email: events@hammerzz.com', details: 'Explicitly hosts "dancers" weekly. Perfect for both belly and Western dance.' },
+                { name: 'Club LPK', location: 'North Goa (Candolim)', suitability: 'High', vibe: 'Bollywood, Electronic, Commercial', contact: 'Phone: +919326733295, Email: lpkwaterfront@gmail.com', details: 'Unique cave-like ambiance and live music stage provide a great backdrop.' },
+                { name: 'Cohiba Bar & Kitchen', location: 'North Goa (Candolim)', suitability: 'High', vibe: 'Bollywood, Retro, Jazz, Diverse', contact: 'Phone: +917722031222', details: 'Famous for live bands and themed nights. A fusion performance would fit perfectly here.' },
+                { name: 'Soro – The Village Pub', location: 'North Goa (Assagao)', suitability: 'High', vibe: 'Diverse, Retro, Live Music', contact: 'Email: abel@sinq.in', details: 'Known for Salsa parties, indicating an openness to specific dance forms.' },
+                { name: 'Tito\'s & Cafe Mambo', location: 'North Goa (Baga)', suitability: 'High', vibe: 'Bollywood, EDM, Commercial', contact: 'Phone: +917066138971', details: 'Iconic clubs with high energy. A featured dance performance would align with their "world-class entertainment" goal.' },
+                { name: 'SinQ Night Club', location: 'North Goa (Candolim)', suitability: 'Moderate', vibe: 'House, Commercial, Best DJs', contact: 'Email: sinqhospitality@gmail.com', details: 'Primarily DJ-driven but lists "Live Music," suggesting potential for dance acts.' },
+                { name: 'Club Margarita', location: 'South Goa (Colva)', suitability: 'Moderate', vibe: 'Jazz, Calypso, Alternative', contact: 'Justdial listing', details: 'Themed music nights might be open to complementary dance styles.' },
+                { name: 'Cape Town Cafe', location: 'North Goa (Baga)', suitability: 'Moderate', vibe: 'DJ, Music, Party', contact: 'Justdial listing', details: 'A high-energy, party-starter performance would be best here.' },
+                { name: '9 Bar', location: 'North Goa (Anjuna)', suitability: 'Moderate', vibe: 'Diverse', contact: 'Justdial listing', details: 'Hosts a weekly dance workshop, indicating a dance-friendly community.' },
+                { name: 'Club Cubana', location: 'North Goa (Arpora)', suitability: 'Limited/Seasonal', vibe: 'EDM, Bollywood, House', contact: 'WhatsApp: +919823539000', details: 'The "Nightclub in the Sky" is a prime spot but is closed during monsoon (June-Sept). Time outreach carefully.' },
+                { name: 'Silent Noise Club', location: 'South Goa (Palolem)', suitability: 'Limited/Seasonal', vibe: 'Silent Disco (headphones)', contact: 'N/A', details: 'Headphone-based format is not ideal for a live dance performance that relies on shared audio.' },
+                { name: 'Shiva Valley', location: 'North Goa (Anjuna)', suitability: 'Limited/Seasonal', vibe: 'Trance, Psychedelic', contact: 'N/A', details: 'Very niche music genre. Would require a highly specialized trance-fusion dance style.' }
+            ];
+
+            const agenciesData = [
+                { name: 'Art Goa Entertainment', location: 'Panjim', suitability: 'High', services: 'Dancers for Hire (Belly Dance listed!), Event Planning', contact: 'Phone: +919552934534, Email: info@artgoa.com', details: 'A top-priority contact as they specifically list belly dancers as a service.' },
+                { name: 'Hype Events Goa', location: 'Arpora, Panjim', suitability: 'High', services: 'Artist Management, Club Events, Group Performers', contact: 'Phone: 9860475168, Email: vapehype22@gmail.com', details: 'Directly involved in artist management and club events.' },
+                { name: 'Primeslots Events', location: 'Panjim', suitability: 'Moderate', services: 'Entertainment Agencies, Event Management', contact: 'Phone: +918975765661, Email: primeslotsaccounts@gmail.com', details: 'Broad event management scope could include performance bookings.' },
+                { name: 'Demaridian Entertainment', location: 'Panjim', suitability: 'Moderate', services: 'Entertainment Agencies', contact: 'Website: demaridian.com', details: 'General entertainment agency, worth an inquiry.' },
+                { name: 'Bingo Weddings & Events', location: 'Nerul', suitability: 'Limited/Seasonal', services: 'Event Organisers, Wedding Planners', contact: 'Website: bingostays.com', details: 'Focus is on weddings, but could have opportunities for dance performances.' },
+                { name: 'The Getaway Club', location: 'Margao', suitability: 'Limited/Seasonal', services: 'Entertainment Agencies', contact: 'Website: thegetawayclubgoa.com', details: 'General agency, likely less focused on nightclub gigs.' }
+            ];
+
+            // State
+            let currentTab = 'clubs';
+            let currentSearchTerm = '';
+            let currentSuitability = 'all';
+
+            // DOM Elements
+            const grid = document.getElementById('cards-grid');
+            const tabClubs = document.getElementById('tab-clubs');
+            const tabAgencies = document.getElementById('tab-agencies');
+            const searchInput = document.getElementById('search-input');
+            const suitabilityFilter = document.getElementById('filter-suitability');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            // Functions
+            function getSuitabilityClass(suitability) {
+                switch (suitability) {
+                    case 'High': return 'bg-green-100 text-green-800';
+                    case 'Moderate': return 'bg-yellow-100 text-yellow-800';
+                    case 'Limited/Seasonal': return 'bg-red-100 text-red-800';
+                    default: return 'bg-gray-100 text-gray-800';
+                }
+            }
+
+            function renderCards() {
+                grid.innerHTML = '';
+                const data = currentTab === 'clubs' ? clubsData : agenciesData;
+                
+                const filteredData = data.filter(item => {
+                    const matchesSearch = item.name.toLowerCase().includes(currentSearchTerm.toLowerCase());
+                    const matchesSuitability = currentTab === 'clubs' ? (currentSuitability === 'all' || item.suitability === currentSuitability) : true;
+                    return matchesSearch && matchesSuitability;
+                });
+
+                if (filteredData.length === 0) {
+                    grid.innerHTML = `<div class="col-span-1 md:col-span-2 lg:col-span-3 text-center text-gray-500 py-10">
+                        <p class="text-xl">No results found.</p>
+                        <p>Try adjusting your filters or search term.</p>
+                    </div>`;
+                    return;
+                }
+
+                filteredData.forEach((item, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white rounded-xl shadow-lg overflow-hidden transform hover:-translate-y-1 transition-transform duration-300 card-enter';
+                    card.style.animationDelay = `${index * 50}ms`;
+                    
+                    const suitabilityClass = getSuitabilityClass(item.suitability);
+                    const isClub = currentTab === 'clubs';
+
+                    card.innerHTML = `
+                        <div class="p-6">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-xl font-bold text-[#4A4A4A]">${item.name}</h3>
+                                ${isClub ? `<span class="text-xs font-semibold px-2 py-1 ${suitabilityClass} rounded-full">${item.suitability}</span>` : ''}
+                            </div>
+                            <p class="text-sm text-gray-500 mb-4">${item.location}</p>
+                            <p class="text-sm text-gray-700 mb-1"><span class="font-semibold">${isClub ? 'Vibe' : 'Services'}:</span> ${isClub ? item.vibe : item.services}</p>
+                            <p class="text-sm text-gray-700"><span class="font-semibold">Contact:</span> ${item.contact}</p>
+                            <div class="mt-4 pt-4 border-t border-gray-200">
+                                <p class="text-xs text-gray-500 italic"><span class="font-semibold">Note:</span> ${item.details}</p>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+
+            function updateTabs() {
+                if (currentTab === 'clubs') {
+                    tabClubs.classList.add('active', 'bg-[#E57373]', 'text-white');
+                    tabClubs.classList.remove('text-gray-600');
+                    tabAgencies.classList.remove('active', 'bg-[#E57373]', 'text-white');
+                    tabAgencies.classList.add('text-gray-600');
+                    suitabilityFilter.style.display = 'block';
+                } else {
+                    tabAgencies.classList.add('active', 'bg-[#E57373]', 'text-white');
+                    tabAgencies.classList.remove('text-gray-600');
+                    tabClubs.classList.remove('active', 'bg-[#E57373]', 'text-white');
+                    tabClubs.classList.add('text-gray-600');
+                    suitabilityFilter.style.display = 'none';
+                }
+                renderCards();
+            }
+
+            // Event Listeners
+            tabClubs.addEventListener('click', () => {
+                currentTab = 'clubs';
+                updateTabs();
+            });
+
+            tabAgencies.addEventListener('click', () => {
+                currentTab = 'agencies';
+                updateTabs();
+            });
+
+            searchInput.addEventListener('input', (e) => {
+                currentSearchTerm = e.target.value;
+                renderCards();
+            });
+
+            suitabilityFilter.addEventListener('change', (e) => {
+                currentSuitability = e.target.value;
+                renderCards();
+            });
+
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            // Close mobile menu when a link is clicked
+            document.querySelectorAll('#mobile-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
+            });
+
+            // Nav link active state on scroll
+            const sections = document.querySelectorAll('main section');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 90) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').substring(1) === current) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+
+            // Chart.js
+            const ctx = document.getElementById('seasonalityChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Gig Opportunity Level',
+                        data: [9, 9, 8, 7, 6, 3, 2, 3, 4, 7, 8, 10], // Arbitrary values representing seasonality
+                        backgroundColor: (context) => {
+                            const value = context.dataset.data[context.dataIndex];
+                            return value > 6 ? 'rgba(229, 115, 115, 0.6)' : 'rgba(170, 170, 170, 0.5)';
+                        },
+                        borderColor: (context) => {
+                            const value = context.dataset.data[context.dataIndex];
+                            return value > 6 ? 'rgba(211, 84, 84, 1)' : 'rgba(130, 130, 130, 1)';
+                        },
+                        borderWidth: 2,
+                        borderRadius: 5,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw;
+                                    let label = 'Opportunity: ';
+                                    if (value > 8) label += 'Peak';
+                                    else if (value > 6) label += 'High';
+                                    else if (value > 4) label += 'Moderate';
+                                    else label += 'Low (Off-Season)';
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                drawBorder: false,
+                            },
+                            ticks: {
+                                callback: function(value, index, values) {
+                                    if (value === 10) return 'Peak Season';
+                                    if (value === 5) return 'Mid-Season';
+                                    if (value === 0) return 'Off-Season';
+                                    return '';
+                                }
+                            }
+                        },
+                        x: {
+                             grid: {
+                                display: false,
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Initial render
+            updateTabs();
+        });
+    </script>
+</body>
+</html>
